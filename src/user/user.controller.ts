@@ -1,19 +1,30 @@
-import { Body, Controller, Delete, Param, Put } from '@nestjs/common';
-import { UserDto, UserUpdateDto } from './dto';
-import { UserService } from './user.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { UserDto, UserUpdateDto } from './dto';
+import { UserService } from './user.service';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 
 @ApiTags('Users')
+@UseGuards(JwtAuthGuard)
 @Controller('api/users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Put(':id')
+  @ApiBearerAuth()
   @ApiOperation({ description: 'Update user' })
   @ApiBadRequestResponse({ description: 'User not exist!' })
   @ApiCreatedResponse({ type: UserDto })
@@ -25,6 +36,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
   @ApiOperation({ description: 'Delete user' })
   @ApiBadRequestResponse({ description: 'User not exist!' })
   @ApiCreatedResponse({ type: UserDto })

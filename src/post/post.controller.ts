@@ -1,26 +1,42 @@
-import { Body, Controller, Delete, Param, Post, Put } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { PostCreateDto, PostDto, PostUpdateDto } from './dto';
 import { PostService } from './post.service';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import RoleGuard from '../user/role.guard';
 
 @ApiTags('Posts')
+@UseGuards(JwtAuthGuard)
 @Controller('api/posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
   @Post()
+  @ApiBearerAuth()
   @ApiOperation({ description: 'Creating a new post' })
   @ApiCreatedResponse({ type: PostDto })
-  create(@Body() storeDto: PostCreateDto): Promise<PostDto> {
-    return this.postService.createPost(storeDto);
+  create(@Req() request, @Body() storeDto: PostCreateDto): Promise<PostDto> {
+    return this.postService.createPost(request.user, storeDto);
   }
 
   @Put(':id')
+  @ApiBearerAuth()
+  @UseGuards(RoleGuard())
   @ApiOperation({ description: 'Update post' })
   @ApiBadRequestResponse({ description: 'Post not exist!' })
   @ApiCreatedResponse({ type: PostDto })
@@ -32,10 +48,11 @@ export class PostController {
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
+  @UseGuards(RoleGuard())
   @ApiOperation({ description: 'Delete post' })
   @ApiBadRequestResponse({ description: 'Post not exist!' })
-  @ApiCreatedResponse({ type: PostDto })
-  delete(@Param('id') id: string): Promise<PostDto> {
+  delete(@Param('id') id: string): Promise<PostDto | null> {
     return this.postService.deletePost(id);
   }
 }

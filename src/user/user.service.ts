@@ -11,12 +11,12 @@ export class UserService {
     return this.userRepository.findByEmail(email);
   }
 
-  public async createUser(userData: UserRegisterDto): Promise<UserDto> {
+  public async registerUser(userData: UserRegisterDto): Promise<UserDto> {
     const isExistUser = await this.userRepository.findByEmail(userData.email);
     if (isExistUser) {
       throw new BadRequestException('User exist!');
     }
-    return await this.userRepository.createUser(userData);
+    return await this.userRepository.registerUser(userData);
   }
 
   public async updateUser(

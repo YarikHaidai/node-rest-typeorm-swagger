@@ -11,7 +11,7 @@ export class UserRepository extends Repository<User> {
     super(User, dataSource.createEntityManager());
   }
 
-  public async createUser(userData: UserRegisterDto): Promise<UserDto | null> {
+  public async registerUser(userData: UserRegisterDto): Promise<UserDto | null> {
     const entity = UserMapper.toCreateEntity(userData);
     const user = await this.manager.save(User, entity);
     return this.findById(user.id);
@@ -36,7 +36,9 @@ export class UserRepository extends Repository<User> {
   public async findByEmail(email: string): Promise<UserDto | null> {
     const user = await this.manager.findOne(User, {
       where: { email },
+      relations: ['posts'],
     });
+
     return user ? UserMapper.toDto(user) : null;
   }
 
