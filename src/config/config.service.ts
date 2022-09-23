@@ -5,6 +5,14 @@ dotenv.config({ path: '.env' });
 
 @Injectable()
 export class ConfigService {
+  static getVariable(key: string) {
+    const variable = process.env[key];
+    if (!variable) {
+      throw new Error(`Environment variable ${key} is undefined`);
+    }
+    return variable;
+  }
+
   static getOrmConfig() {
     const {
       DATABASE_TYPE,
